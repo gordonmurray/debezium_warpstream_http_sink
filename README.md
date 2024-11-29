@@ -14,11 +14,14 @@ I used Warpstream as my kafka cluster and I used Ngrok as a temporary endpoint t
 
 The source connector to read data from a table in the database is located at files/connector_mariadb.json looks like the following:
 
-```
+```json5
 {
     "connector.class": "io.debezium.connector.mysql.MySqlConnector",
+
     "database.history.kafka.bootstrap.servers": "api-xxxxxxxxxx.warpstream.com:9092",
     "database.history.kafka.topic": "history",
+
+    // database connection details
     "database.hostname": "mariadb",
     "database.password": "rootpassword",
     "database.port": "3306",
@@ -26,6 +29,7 @@ The source connector to read data from a table in the database is located at fil
     "database.server.name": "myconnector",
     "database.user": "root",
     "database.whitelist": "mydatabase",
+
     "schema.history.internal.kafka.bootstrap.servers": "api-xxxxxxxxxx.warpstream.com:9092",
     "schema.history.internal.kafka.topic": "schema-changes.mydatabase",
     "table.whitelist": "mydatabase.products",
@@ -48,7 +52,7 @@ Debezium will create a number of topics in the kafka cluster, in this case it wi
 
 Once the topic is in place with some records, I can then add the HTTP sink connector, located at files/connector_http.json. The connector config looks like the following:
 
-```
+```json5
 {
     "connector.class": "io.confluent.connect.http.HttpSinkConnector",
     "tasks.max": "1",
@@ -61,8 +65,11 @@ Once the topic is in place with some records, I can then add the HTTP sink conne
     "retry.backoff.ms": "3000",
     "connection.timeout.ms": "2000",
     "request.timeout.ms": "5000",
+
+    // add your warpstream endpoint here
     "confluent.topic.bootstrap.servers": "api-xxxxxxxxx.warpstream.com:9092",
     "reporter.bootstrap.servers": "api-xxxxxxxxx.warpstream.com:9092",
+
     "reporter.error.topic.name": "error-topic",
     "reporter.error.topic.replication.factor": "1",
     "reporter.result.topic.name": "success-topic",
